@@ -1,0 +1,7 @@
+# Ignorer le dossier d'environnement virtuel
+.venv/
+# Ignorer les fichiers de cache Python pour tous les sous dossiers
+__pycache__/
+*.py[cod]
+# Ignorer les fichiers de configuration spécifiques à l'IDE
+.vscode/
