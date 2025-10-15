@@ -19,7 +19,7 @@ def is_logged_in(view_func):
             except RefreshToken.DoesNotExist:
                 return JsonResponse({'error': 'Token invalide'}, status=401)
         else:
-            return JsonResponse({'error': 'Authorisation d\'en tête manquante'}, status=401)
+            return JsonResponse({'error': 'Aucun utilisateur connecté'}, status=401)
     return wrapper
 
 def is_admin(view_func):
@@ -28,7 +28,7 @@ def is_admin(view_func):
         if hasattr(request, 'user') and request.user.role == 'admin':
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({'error': 'Administrateur requis'}, status=403)
+            return JsonResponse({'error': 'Cette action requiert un administrateur'}, status=403)
     return wrapper
 
 def is_seller(view_func):
@@ -37,7 +37,7 @@ def is_seller(view_func):
         if hasattr(request, 'user') and request.user.role == 'seller':
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({'error': 'Commerçante requise'}, status=403)
+            return JsonResponse({'error': 'Cette action requiert la commerçante'}, status=403)
     return wrapper
 
 def is_moderator(view_func):
@@ -46,7 +46,7 @@ def is_moderator(view_func):
         if hasattr(request, 'user') and request.user.role == 'moderator':
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({'error': 'Modérateur requis'}, status=403)
+            return JsonResponse({'error': 'Cette action requiert un modérateur'}, status=403)
     return wrapper
 
 def is_customer(view_func):
@@ -55,7 +55,7 @@ def is_customer(view_func):
         if hasattr(request, 'user') and request.user.role == 'customer':
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({'error': 'Client requis'}, status=403)
+            return JsonResponse({'error': 'Cette action est réservée aux clients'}, status=403)
     return wrapper
 
 def is_delivery(view_func):
@@ -64,7 +64,7 @@ def is_delivery(view_func):
         if hasattr(request, 'user') and request.user.role == 'delivery':
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({'error': 'Livreur requis'}, status=403)
+            return JsonResponse({'error': 'Cette action requiert un livreur'}, status=403)
     return wrapper
 
 def is_not_customer(view_func):
@@ -73,7 +73,7 @@ def is_not_customer(view_func):
         if hasattr(request, 'user') and request.user.role != 'customer':
             return view_func(request, *args, **kwargs)
         else:
-            return JsonResponse({'error': 'Non client requis'}, status=403)
+            return JsonResponse({'error': 'Cette action concerne tout utilisateur qui n\'est pas un client'}, status=403)
     return wrapper
 
 def send_verify_account_mail(user, code):
