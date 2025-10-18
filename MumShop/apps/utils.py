@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from apps.config import CODE_VALIDITY_MINUTES
+from apps.models import Notification
 
 def is_logged_in(view_func):
     def wrapper(request, *args, **kwargs):
@@ -75,6 +76,25 @@ def is_not_customer(view_func):
         else:
             return JsonResponse({'error': 'Cette action concerne tout utilisateur qui n\'est pas un client'}, status=403)
     return wrapper
+
+def is_not_customer_or_delivery(view_func):
+    @is_logged_in
+    def wrapper(request, *args, **kwargs):
+        if hasattr(request, 'user') and request.user.role not in ['customer', 'delivery']:
+            return view_func(request, *args, **kwargs)
+        else:
+            return JsonResponse({'error': 'Cette action concerne tout utilisateur qui n\'est pas un client ou un livreur'}, status=403)
+    return wrapper
+
+def createNotification(user, message, obj=None, obj_slug=None):
+    notification = Notification.objects.create(
+        user=user,
+        message=message,
+        obj=obj,
+        obj_slug=obj_slug
+    )
+    return notification
+
 
 def send_verify_account_mail(user, code):
     subject = "Vérification de compte"

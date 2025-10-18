@@ -294,9 +294,16 @@ class Payment(BaseModel):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_id = models.CharField(max_length=100, unique=True)
     paid_at = models.DateTimeField(auto_now_add=True)
+    is_returned = models.BooleanField(default=False)
+    returned_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"Payment for Order #{self.order.id} - {self.amount} via {self.payment_method}"
+    
+    def return_payment(self):
+        self.is_returned = True
+        self.returned_at = timezone.now()
+        self.save(update_fields=['is_returned', 'returned_at'])
     
     def as_dict(self, include_related=False, exclude=None):
         return super().as_dict(include_related, exclude)
@@ -325,7 +332,6 @@ class Delivery(BaseModel):
     
     def cancel(self):
         self.status = 'canceled'
-        self.order.canceled()  # Mark order as canceled
         self.save(update_fields=['status'])
     
     def as_dict(self, include_related=True, exclude=None):
@@ -385,11 +391,12 @@ class NewsletterSubscription(models.Model):
     def as_dict(self, include_related=False, exclude=None):
         return super().as_dict(include_related, exclude)
 
-class Notification(models.Model):
+class Notification(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
     is_read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    obj = models.CharField(max_length=30, null=True, blank=True)
+    obj_slug = models.SlugField(max_length=50, null=True, blank=True)
     
     def __str__(self):
         return f"Notification for {self.user.full_name()} - {'Read' if self.is_read else 'Unread'}"
@@ -400,7 +407,7 @@ class Notification(models.Model):
     
     def as_dict(self, include_related=False, exclude=None):
         return super().as_dict(include_related, exclude)
-
+""" 
 class Conversation(models.Model):
     participants = models.ManyToManyField(User, related_name='conversations')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -487,3 +494,4 @@ class MessageReaction(models.Model):
     def as_dict(self, include_related=False, exclude=None):
         return super().as_dict(include_related, exclude)
 
+ """
